@@ -79,7 +79,21 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         )
         .setColor("Green")
 
-    
+    const timeInput = time
+    const dateInput = date
+    const reversedDate = dateInput.split("-").reverse().join("-");
+    const myDate: any = new Date(reversedDate);
+
+    const [hourStr, minuteStr]: any = timeInput?.split(':');
+    const hourInt = parseInt(hourStr);
+    const minuteInt = parseInt(minuteStr);
+
+    myDate.setHours(hourInt, minuteInt, 0, 0)
+    const unixTimeStamp = myDate / 1000
+
+    console.log(`${hourInt}:${minuteInt}`);
+    console.log(`Unix timestamp is: ${unixTimeStamp}`);
+
 
     await interaction.reply({
         embeds: [embed]

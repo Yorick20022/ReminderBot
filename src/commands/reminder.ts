@@ -90,10 +90,11 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     myDate.setHours(hourInt, minuteInt, 0, 0)
     const unixTimeStamp = myDate / 1000
-
-    console.log(`${hourInt}:${minuteInt}`);
-    console.log(`Unix timestamp is: ${unixTimeStamp}`);
-
+    const humanReadableDateAndTime = `${date} ${time}`
+    const userId = interaction.user.id
+    
+    const db = await dbPromise;
+    await db.run(`INSERT INTO reminders (user_id, reminder_text, unix_timestamp, readable_date) VALUES (?, ?, ?, ?)`, userId, what, unixTimeStamp, humanReadableDateAndTime);
 
     await interaction.reply({
         embeds: [embed]

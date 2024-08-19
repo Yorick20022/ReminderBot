@@ -85,5 +85,14 @@ for (const file of eventFiles) {
 	}
 }
 
+const db = new sqlite3.Database("./extra/database.db", sqlite3.OPEN_READWRITE, (err) => {
+	if (err) return console.error(err.message);
+})
+
+
+setInterval(() => {
+
+}, 1000);
+
 // Log in to Discord with your client's token
 client.login(token);

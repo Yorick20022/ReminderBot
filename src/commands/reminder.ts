@@ -1,7 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, TextChannel, Client, EmbedBuilder } from 'discord.js';
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
-import moment, { locale, locales, unix } from "moment"
 
 // this is a top-level await 
 const dbPromise = (async () => {

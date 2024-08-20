@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path'
 import { Client, Partials, Collection, Events, IntentsBitField, SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 import sqlite3 from "sqlite3";
-import { open } from "sqlite";
 
 const token = process.env.TOKEN as string
 // Create intents
@@ -85,14 +84,23 @@ for (const file of eventFiles) {
 	}
 }
 
-const db = new sqlite3.Database("./extra/database.db", sqlite3.OPEN_READWRITE, (err) => {
-	if (err) return console.error(err.message);
-})
+const db = new sqlite3.Database("./extra/database.db");
 
+setInterval(async () => {
 
-setInterval(() => {
+	const userID = process.env.USER_ID as string
+	const guild = client.guilds.cache.get(process.env.GUILD_ID as string);
+	const user = await guild?.members.fetch(userID)
+	const currentTimeStamp = Math.floor(Date.now() / 1000)
 
-}, 1000);
+	db.each(`SELECT id, reminder_text, unix_timestamp FROM reminders WHERE ${currentTimeStamp} > unix_timestamp`, (err, row: any) => {
+
+		user?.send(`Reminder: \`${row.reminder_text}\``)
+
+		db.run(`DELETE FROM reminders WHERE id = ${row.id}`)
+	});
+
+}, 5000)
 
 // Log in to Discord with your client's token
 client.login(token);

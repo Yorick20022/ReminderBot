@@ -2,7 +2,9 @@ import 'dotenv/config'
 import fs from 'fs';
 import path from 'path'
 import { Client, Partials, Collection, Events, IntentsBitField, SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import sqlite3 from "sqlite3";
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 const token = process.env.TOKEN as string
 // Create intents
@@ -84,7 +86,7 @@ for (const file of eventFiles) {
 	}
 }
 
-const db = new sqlite3.Database("./extra/database.db");
+
 
 setInterval(async () => {
 
@@ -93,12 +95,16 @@ setInterval(async () => {
 	const user = await guild?.members.fetch(userID)
 	const currentTimeStamp = Math.floor(Date.now() / 1000)
 
-	db.each(`SELECT id, reminder_text, unix_timestamp FROM reminders WHERE ${currentTimeStamp} > unix_timestamp`, (err, row: any) => {
+	const result = await prisma.reminder.findMany({
+		where: {
+			unix_timestamp: { lte: currentTimeStamp }
+		},
+		select: {
+			reminder_text: true
+		}
+	})
 
-		user?.send(`Reminder: \`${row.reminder_text}\``)
-
-		db.run(`DELETE FROM reminders WHERE id = ${row.id}`)
-	});
+	console.log(result);
 
 }, 5000)
 

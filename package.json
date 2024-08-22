@@ -10,6 +10,7 @@
   "module": "es2020",
   "author": "Yorick",
   "dependencies": {
+    "@prisma/client": "^5.18.0",
     "discord-api-types": "^0.37.60",
     "discord.js": "^14.11.0",
     "dotenv": "^16.4.5",
@@ -22,6 +23,7 @@
     "@types/humanize-duration": "^3.27.1",
     "eslint": "^8.34.0",
     "nodemon": "^3.0.1",
+    "prisma": "^5.18.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   }

@@ -1,26 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, TextChannel, Client, EmbedBuilder } from 'discord.js';
-import sqlite3 from "sqlite3";
-import { open } from "sqlite";
+import { PrismaClient } from '@prisma/client'
 
-// this is a top-level await 
-const dbPromise = (async () => {
-    // open the database
-    const db = await open({
-        filename: './extra/database.db',
-        driver: sqlite3.Database
-    });
-
-    // Create the table if it doesn't exist
-    await db.run(`CREATE TABLE IF NOT EXISTS reminders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT,
-        reminder_text TEXT,
-        unix_timestamp INT,
-        readable_date TEXT
-    )`);
-
-    return db;
-})();
+const prisma = new PrismaClient()
 
 export const data = new SlashCommandBuilder()
     .setName('setreminder')
@@ -58,7 +39,6 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     };
     //
 
-
     // Regex to validate date input
     const regexDate: RegExp = /^(\d{1,2})-(\d\d|2[0-9])-(\d{4})$/
 
@@ -91,9 +71,27 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const unixTimeStamp = myDate / 1000
     const humanReadableDateAndTime = `${date} ${time}`
     const userId = interaction.user.id
-    
-    const db = await dbPromise;
-    await db.run(`INSERT INTO reminders (user_id, reminder_text, unix_timestamp, readable_date) VALUES (?, ?, ?, ?)`, userId, what, unixTimeStamp, humanReadableDateAndTime);
+
+    const main = async () => {
+        const reminder = await prisma.reminder.create({
+            data: {
+                user_id: userId,
+                reminder_text: what as string,
+                unix_timestamp: unixTimeStamp,
+                readable_date: humanReadableDateAndTime
+            },
+        })
+    }
+
+    main()
+        .then(async () => {
+            await prisma.$disconnect()
+        })
+        .catch(async (e) => {
+            console.error(e)
+            await prisma.$disconnect()
+            process.exit(1)
+        })
 
     await interaction.reply({
         embeds: [embed]

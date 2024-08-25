@@ -4,5 +4,6 @@ CREATE TABLE "Reminder" (
     "user_id" TEXT NOT NULL,
     "reminder_text" TEXT NOT NULL,
     "unix_timestamp" INTEGER NOT NULL,
-    "readable_date" TEXT NOT NULL
+    "readable_date" TEXT NOT NULL,
+    "done" BOOLEAN NOT NULL DEFAULT false
 );

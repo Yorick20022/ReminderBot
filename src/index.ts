@@ -95,31 +95,37 @@ setInterval(async () => {
 	const user = await guild?.members.fetch(userID)
 	const currentTimeStamp = Math.floor(Date.now() / 1000)
 
-	const result: any = await prisma.reminder.findMany({
+	const result = await prisma.reminder.findMany({
 		where: {
 			unix_timestamp: { lte: currentTimeStamp },
 			done: false
 		}
 	})
 
-	try {
-		const reminderText = result[0].reminder_text
-		const reminderId = result[0].id
-		user?.send({ content: `Reminder: ${reminderText}` });
+	if (result.length === 0) return
 
-		await prisma.reminder.update({
-			where: {
-				id: reminderId
-			},
-			data: {
-				done: true,
-			},
-		})
-	} catch {
-		// nothing
+	const reminderText = result[0].reminder_text
+	const reminderId = result[0].id
+
+	const reminderMessage = await user?.send(`Reminder: ${reminderText}`);
+	
+	if (reminderMessage === null) {
+		console.log("Message did not arrive");
+	} else {
+		console.log("Reminded successfully");
 	}
 
-}, 60000)
+	await prisma.reminder.update({
+		where: {
+			id: reminderId
+		},
+		data: {
+			done: true,
+		},
+	})
+
+
+}, 10000)
 
 // Log in to Discord with your client's token
 client.login(token);
